@@ -1,0 +1,27 @@
+
+/*Un trigger que prohíba a un estudiante puede tener una calificación 
+
+de menor a 0 y mayor a 10 */
+create or replace function tr_calificacion()
+returns trigger as $tr_calificacion$
+declare
+calificacion1 int = 0;
+ncalificacion int = 10;
+begin
+select count(*) into calificacion1  from estudiante where id_estudiante=new.id_estudiante;
+		 select id_calificacion into ncalificacion from calificacion;  
+if(calificacion1 >= ncalificacion) then
+   raise exception 'El estudiante no puede tener una calificaion menor de 0 o mayor de 10 '; 
+		return new;
+		end if;
+return new;
+end;
+$tr_calificacion$ language plpgsql;
+create trigger tr_calificacion
+before insert or update on calificacion
+for each row
+execute procedure tr_calificacion();
+
+insert into calificacion values (1,4,4,4, 4, 5, 8);
+insert into calificacion values (2,4,4,4, 11, 5, 8);
+insert into calificacion values (3,4,3,4, -1, 5, 8);
